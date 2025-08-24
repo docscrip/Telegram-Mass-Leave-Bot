@@ -15,7 +15,7 @@
 1. Клонируйте репозиторий:
 
 ```bash
-git clone https://github.com/yourusername/telegram-mass-leave.git
+git clone https://github.com/docscrip/telegram-mass-leave.git
 cd telegram-mass-leave
 ```
 
