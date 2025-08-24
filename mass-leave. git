@@ -2,7 +2,7 @@ from telethon.sync import TelegramClient
 import asyncio
 
 # ТВОИ ДАННЫЕ! ЗАМЕНИ ИХ!
-api_id = 12345678  # Введи свой api_id
+api_id = 12345679  # Введи свой api_id
 api_hash = 'твой_api_hash_тут'  # Введи свой api_hash
 
 # СПИСОК ДЛЯ СОХРАНЕНИЯ (и чаты, и боты)
