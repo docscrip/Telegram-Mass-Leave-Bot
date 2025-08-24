@@ -15,8 +15,8 @@
 1. Клонируйте репозиторий:
 
 ```bash
-git clone https://github.com/docscrip/telegram-mass-leave.git
-cd telegram-mass-leave
+git clone https://github.com/docscrip/mass_leave.git
+cd mass_leave
 ```
 
 1. Установите зависимости:
