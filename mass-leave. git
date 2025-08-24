@@ -1,0 +1,124 @@
+from telethon.sync import TelegramClient
+import asyncio
+
+# ТВОИ ДАННЫЕ! ЗАМЕНИ ИХ!
+api_id = 12345678  # Введи свой api_id
+api_hash = 'твой_api_hash_тут'  # Введи свой api_hash
+
+# СПИСОК ДЛЯ СОХРАНЕНИЯ (и чаты, и боты)
+WHITELIST = [
+    "Очень Важный Чат",
+    "Мемы от друзей", 
+    "@username_бота",
+    "Работа"
+]
+
+async def main():
+    client = TelegramClient('session_name', api_id, api_hash)
+    await client.start()
+    
+    print("✅ Подключение к Telegram успешно!")
+    print("📋 Получаю список всех диалогов...")
+    
+    dialogs = await client.get_dialogs()
+    dialogs_to_delete = []
+    
+    print("\n" + "="*50)
+    print("📊 АНАЛИЗИРУЮ ДИАЛОГИ:")
+    print("="*50)
+    
+    for dialog in dialogs:
+        # Проверяем белый список
+        if dialog.name in WHITELIST:
+            print(f"✅ СОХРАНЯЮ: {dialog.name}")
+            continue
+            
+        if hasattr(dialog.entity, 'username') and dialog.entity.username:
+            username = f"@{dialog.entity.username}"
+            if username in WHITELIST:
+                print(f"✅ СОХРАНЯЮ: {username}")
+                continue
+        
+        # Определяем тип диалога для понятного сообщения
+        if dialog.is_user:
+            # Это бот или личный чат
+            if hasattr(dialog.entity, 'bot') and dialog.entity.bot:
+                dialog_type = "БОТ"
+            else:
+                dialog_type = "ЛИЧНЫЙ ЧАТ"
+        elif dialog.is_group:
+            dialog_type = "ГРУППА"
+        elif dialog.is_channel:
+            if hasattr(dialog.entity, 'broadcast') and dialog.entity.broadcast:
+                dialog_type = "КАНАЛ"
+            else:
+                dialog_type = "СУПЕРГРУППА"
+        else:
+            dialog_type = "ЧАТ"
+        
+        dialogs_to_delete.append((dialog, dialog_type))
+        print(f"❌ БУДУ ВЫХОДИТЬ: {dialog.name} ({dialog_type})")
+    
+    # Подтверждение
+    print("\n" + "="*50)
+    print(f"📈 ИТОГО: {len(dialogs_to_delete)} диалогов для выхода")
+    print("="*50)
+    
+    if not dialogs_to_delete:
+        print("🎉 Нечего удалять! Все чисто!")
+        return
+        
+    print("\n💡 Будут удалены:")
+    for dialog, dialog_type in dialogs_to_delete:
+        print(f"   • {dialog.name} ({dialog_type})")
+    
+    answer = input("\n🚀 Продолжить выход? (y/N): ")
+    if answer.lower() != 'y':
+        print("❎ Отмена.")
+        return
+    
+    # Выходим из диалогов
+    print("\n" + "="*50)
+    print("🚪 НАЧИНАЮ ВЫХОД:")
+    print("="*50)
+    
+    success = 0
+    errors = 0
+    
+    for dialog, dialog_type in dialogs_to_delete:
+        try:
+            await client.delete_dialog(dialog.entity)
+            
+            # ПОНЯТНЫЕ СООБЩЕНИЯ ДЛЯ КАЖДОГО ТИПА:
+            if dialog_type == "БОТ":
+                print(f"🤖 Удалил бота: {dialog.name}")
+            elif dialog_type == "ЛИЧНЫЙ ЧАТ":
+                print(f"👤 Удалил личный чат: {dialog.name}")
+            elif dialog_type == "ГРУППА":
+                print(f"👥 Вышел из группы: {dialog.name}")
+            elif dialog_type == "КАНАЛ":
+                print(f"📢 Отписался от канала: {dialog.name}")
+            elif dialog_type == "СУПЕРГРУППА":
+                print(f"💬 Вышел из супергруппы: {dialog.name}")
+            else:
+                print(f"🗑️ Удалил: {dialog.name}")
+                
+            success += 1
+            await asyncio.sleep(1)
+            
+        except Exception as e:
+            print(f"🔥 Ошибка с {dialog.name}: {str(e)}")
+            errors += 1
+            await asyncio.sleep(2)
+    
+    # Итоги
+    print("\n" + "="*50)
+    print("🎯 РЕЗУЛЬТАТ:")
+    print("="*50)
+    print(f"✅ Успешно: {success}")
+    print(f"❌ Ошибок: {errors}")
+    print("\n✨ Готово! Очистка завершена!")
+    print("💾 Сохранены только чаты из белого списка")
+
+# Запускаем
+asyncio.run(main())
